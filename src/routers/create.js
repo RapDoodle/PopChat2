@@ -27,6 +27,7 @@ createRouter.post('/create', async (req, res) => {
       roomId: room.roomId,
       roomPassword: room.password,  // Only send the password when the useer is the creator
       token,
+      maxFileSize: process.env.POP_CHAT_MAX_FILESIZE
     })
   } catch (error) {
     return res.render('create', {

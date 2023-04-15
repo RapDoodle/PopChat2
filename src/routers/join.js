@@ -25,7 +25,8 @@ joinRouter.post('/join', async (req, res) => {
     res.render('chat', {
       username: user.username,
       roomId: room.roomId,
-      token
+      token,
+      maxFileSize: process.env.POP_CHAT_MAX_FILESIZE
     })
   } catch (error) {
     return res.render('join', {

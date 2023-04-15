@@ -3,13 +3,12 @@ const socket = io()
 var sendForm = document.getElementById('sendForm')
 var msgBox = document.getElementById('textMsg')
 var sendFormBtn = document.getElementById('send')
-var sendLocationBtn = document.getElementById('send-location')
+var sendFileBtn = document.getElementById('send-file')
 const $messages = document.querySelector('#messages')
 
 // Templates
 const messageTemplateLeft = document.querySelector('#message-left-template').innerHTML
 const messageTemplateRight = document.querySelector('#message-right-template').innerHTML
-const locationMsgTemplate = document.querySelector('#location-message-template').innerHTML
 const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 // Options
@@ -18,6 +17,7 @@ const username = document.getElementById('connectionInfo__username').value
 const roomId = document.getElementById('connectionInfo__roomId').value
 const roomPassword = document.getElementById('connectionInfo__roomPassword').value
 const token = document.getElementById('connectionInfo__token').value
+const maxFileSize = parseInt(document.getElementById('connectionInfo__maxFileSize').value || 1000)
 
 // Clear history
 window.history.pushState("", "", '/chat');
@@ -48,6 +48,43 @@ const autoscroll = () => {
   }
 }
 
+let files = []
+
+// Send file
+sendFileBtn.addEventListener('click', () => {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.addEventListener('change', () => {
+    const file = input.files[0]
+		// Check file size
+		if (file.size > maxFileSize) {
+			messageRender({
+				sender: 'Bot (local)',
+				message: `The file is too big. Exceeded the maximum filesize allowed (${humanReadableFileSize(maxFileSize)}).`,
+			})
+			return
+		}
+    const reader = new FileReader()
+    reader.addEventListener('load', () => {
+			const objectUrl = reader.result
+			socket.emit('file', {
+				filename: file.name,
+				objectUrl: reader.result
+			}, (error) => {
+				if (error) {
+					alert(error)
+				}
+			})
+    });
+
+    // Read the selected file as a data URL
+    reader.readAsDataURL(file)
+  });
+
+  // Trigger a click event on the file input
+  input.click()
+})
+
 var count = 0
 var intervalEvent
 
@@ -70,11 +107,12 @@ const messageRender = ({
   message,
   createdAt = new Date().getTime(),
   messageTemplate,
+	msgHtml
 }) => {
   if (!messageTemplate) {
     messageTemplate = sender.toLowerCase() == username ? messageTemplateRight : messageTemplateLeft
   }
-  const html = Mustache.render(messageTemplate, { sender, message, createdAt: moment(createdAt).format('h:mm A') })
+  const html = Mustache.render(messageTemplate, { sender, message, createdAt: moment(createdAt).format('h:mm A'), msgHtml })
   $messages.insertAdjacentHTML('beforeend', html)
   autoscroll()
 }
@@ -91,6 +129,37 @@ socket.on('welcome', ({ createdAt }) => {
 socket.on('newMessage', (msg) => {
   messageRender({ sender: msg.user, message: msg.text, createdAt: msg.createdAt })
 })
+
+socket.on('newFile', (msg) => {
+	files.push(msg)
+	const msgHtml = `File <a href="#" onclick="saveFile(${files.length-1})">${msg.filename}</a>`
+  messageRender({ sender: msg.user, message: msg.text, createdAt: msg.createdAt, msgHtml })
+})
+
+const saveFile = (index) => {
+	const blob = dataUrlToBlob(files[index].objectUrl);
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', files[index].filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+const dataUrlToBlob = (dataUrl) => {
+  const parts = dataUrl.split(';base64,')
+  const contentType = parts[0].split(':')[1]
+  const raw = window.atob(parts[1])
+  const rawLength = raw.length
+  const array = new Uint8Array(new ArrayBuffer(rawLength))
+  for (let i = 0; i < rawLength; i++) {
+    array[i] = raw.charCodeAt(i)
+  }
+  return new Blob([array], { type: contentType })
+}
 
 socket.on('roomUpdate', ({ roomId, users }) => {
   const html = Mustache.render(sidebarTemplate, {

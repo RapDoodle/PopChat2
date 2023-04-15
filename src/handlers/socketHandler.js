@@ -1,11 +1,13 @@
 import jwt from 'jsonwebtoken'
-import { Server as SocketIOServer } from "socket.io"
-import { generateMessage } from '../utils/message.js'
+import { Server as SocketIOServer } from 'socket.io'
+import { generateMessage, generateFile } from '../utils/message.js'
+import { humanReadableFileSize } from '../utils/file.js'
 import { Room } from '../models/room.js'
 
 export const io = new SocketIOServer({
-  'pingInterval': 2000,
-  'pingTimeout': 5000
+  pingInterval: 2000,
+  pingTimeout: 5000,
+  maxHttpBufferSize: Math.max(1000, parseInt(process.env.POP_CHAT_MAX_FILESIZE))
 })
 
 io.on('connection', (socket) => {
@@ -67,6 +69,25 @@ io.on('connection', (socket) => {
       const user = room.getUser({ username: socket.username })
       if (user) {
         io.to(room.getRoomIdentifier()).emit('newMessage', generateMessage(text, user.displayName))
+        return callback()
+      }
+      socket.emit('newMessage', generateMessage('You are not logged in', 'Bot'))
+      return callback()
+    } catch (e) {
+      // Usually occurs when the server restarted
+      callback(e)
+    }
+  })
+
+  socket.on('file', ({ filename, objectUrl }, callback) => {
+    try {
+      const room = Room.getRoom({ roomId: socket.roomId })
+      const user = room.getUser({ username: socket.username })
+      if (objectUrl.length > parseInt(process.env.POP_CHAT_MAX_FILESIZE))
+        throw `The file size exceeded the limit of ${humanReadableFileSize(parseInt(process.env.POP_CHAT_MAX_FILESIZE))}`
+      if (user) {
+        // Send to the original sender as well
+        io.to(room.getRoomIdentifier()).emit('newFile', generateFile(filename, objectUrl, user.displayName))
         return callback()
       }
       socket.emit('newMessage', generateMessage('You are not logged in', 'Bot'))
