@@ -228,3 +228,18 @@ button:disabled {
   margin-top: -42.5px;
   margin-left: -85px;
 }
+
+
+@media (max-width: 768px) {
+  .chat__sidebar__hidden_mobile {
+    display: none;
+  }
+
+  .compose_mobile_view {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+  }
+}
