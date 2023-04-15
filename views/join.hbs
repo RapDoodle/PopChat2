@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Join a Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/img/favicon.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div class="centered-form">
+    <div class="centered-form__box">
+      <h1>Join</h1>
+      <p class="error-message">{{error}}</p>
+      <form action="/join" method="POST">
+        <label for="">Display Name</label>
+        <input type="text" name="username" placeholder="Name" required value="{{username}}">
+        <label for="">Room Number</label>
+        <input type="text" name="roomId" placeholder="Room Number" required value="{{roomId}}" autocomplete="off">
+        <label for="">Room Password</label>
+        <input type="password" name="roomPassword" placeholder="Password">
+        <button type="submit" id="joinBtn">Join</button>
+      </form>
+      <div class="linkDiv">
+        <a href="./create" class="link">Create a room</a>
+      </div>
+    </div>
+  </div>
+  <script src="/js/general.js"></script>
+</body>
