@@ -2,8 +2,9 @@
 
 An online chat room that emphasizes zero-log and zero-store.
 
-<img src=".github/01.jpg?raw=true" height="250">
-<img src=".github/02.jpg?raw=true" height="250">
+<img src=".github/01.jpg?raw=true" height="350">
+
+<img src=".github/02.jpg?raw=true" height="500">
 
 ## Feature highlights
 
