@@ -81,8 +81,8 @@ System configurations can be found in the `./config/production.env`. The configu
 |POP_CHAT_ADDR|The address the application will listen to|0.0.0.0|
 |POP_CHAT_PORT|The port the appliaction will listen to|8000|
 |POP_CHAT_ENABLE_HTTPS|Whether or not to enable HTTPS|0|
-|POP_CHAT_PRIVATE_KEY_PATH|The path to your private key|### NOT SPECIFIED ###|
-|POP_CHAT_CERT_PATH|The path to your public key|### NOT SPECIFIED ###|
+|POP_CHAT_PRIVATE_KEY_PATH|The path to your private key|(NOT SPECIFIED)|
+|POP_CHAT_CERT_PATH|The path to your public key|(NOT SPECIFIED)|
 |POP_CHAT_MAX_ROOMS|Maximum number of rooms at any time|100|
 |POP_CHAT_MAX_ROOM_CAPACITY|Maximum number of online users in a room.|20|
 |POP_CHAT_ROOM_ID_LENGTH|The length of randomly generated room ID|5|
