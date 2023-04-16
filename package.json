@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "env-cmd -f ./config/dev.env nodemon ./src/index.js -e js,hbs",
-    "start": "env-cmd -f ./config/dev.env pm2 start ./src/index.js"
+    "start": "env-cmd -f ./config/production.env pm2 start ./src/index.js --name popchat2",
+    "stop": "pm2 stop popchat2"
   },
   "author": "",
   "license": "ISC",
@@ -20,7 +20,7 @@
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
     "nodemon": "^2.0.20",
-    "pm2": "^5.2.2",
+    "pm2": "^5.3.0",
     "request": "^2.88.2",
     "socket.io": "^4.5.4"
   },
